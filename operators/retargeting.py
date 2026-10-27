@@ -154,6 +154,11 @@ class RetargetAnimation(bpy.types.Operator):
             source_scale = copy.deepcopy(armature_source.scale)
             self.scale_armature(context, armature_source, armature_target, root_bones)
 
+        # Copy source rest pose onto the target armature before retargeting. Always done when the target has no animation
+        target_has_animation = armature_target.animation_data and armature_target.animation_data.action
+        if context.scene.rsl_retargeting_copy_rest_pose or not target_has_animation:
+            self.send_rest_pose_to_target(armature_source, armature_target)
+
         # Duplicate source armature to apply transforms to the animation
         armature_source_original = armature_source
         armature_source = self.copy_rest_pose(context, armature_source)
@@ -383,6 +388,109 @@ class RetargetAnimation(bpy.types.Operator):
                     frame_end = keyframe
 
         return frame_start, frame_end
+
+    def send_rest_pose_to_target(self, armature_source, armature_target):
+        source_pose_position = armature_source.data.pose_position
+        armature_source.data.pose_position = 'REST'
+
+        target_action = None
+        if armature_target.animation_data:
+            target_action = armature_target.animation_data.action
+            armature_target.animation_data.action = None
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        utils.set_active(armature_target)
+        bpy.ops.object.mode_set(mode='POSE')
+
+        try:
+            for bone in armature_target.data.bones:
+                bone.select = False
+        except Exception:
+            for bone in armature_target.pose.bones:
+                bone.select = False
+
+        added_constraints = []
+        for item in self.retarget_bone_list:
+            bone_target = armature_target.pose.bones.get(item.bone_name_target)
+            bone_source = armature_source.pose.bones.get(item.bone_name_source)
+            if not bone_target or not bone_source:
+                continue
+
+            constraint = bone_target.constraints.new('COPY_TRANSFORMS')
+            constraint.name += RETARGET_ID
+            constraint.target = armature_source
+            constraint.subtarget = item.bone_name_source
+            added_constraints.append((bone_target, constraint))
+
+            try:
+                armature_target.data.bones.get(item.bone_name_target).select = True  # Pre 5.0.0
+            except Exception:
+                bone_target.select = True  # Post 5.0.0
+
+        bpy.context.view_layer.update()
+        bpy.ops.pose.visual_transform_apply()
+
+        for bone_target, constraint in added_constraints:
+            bone_target.constraints.remove(constraint)
+
+        # Bake the posed mesh into the bound meshes so they keep their shape once the pose becomes the rest pose
+        bpy.context.view_layer.update()
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bound_meshes = self.bake_bound_meshes(armature_target)
+
+        utils.set_active(armature_target)
+        bpy.ops.object.mode_set(mode='POSE')
+        bpy.ops.pose.armature_apply()
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        self.rebind_meshes(armature_target, bound_meshes)
+
+        if target_action and armature_target.animation_data:
+            armature_target.animation_data.action = target_action
+
+        armature_source.data.pose_position = source_pose_position
+
+    def bake_bound_meshes(self, armature_target):
+        bound_meshes = []
+        for obj in bpy.data.objects:
+            if obj.type != 'MESH':
+                continue
+
+            for index, modifier in enumerate(obj.modifiers):
+                if modifier.type != 'ARMATURE' or modifier.object != armature_target:
+                    continue
+
+                settings = {
+                    'index': index,
+                    'use_vertex_groups': modifier.use_vertex_groups,
+                    'use_bone_envelopes': modifier.use_bone_envelopes,
+                    'use_deform_preserve_volume': modifier.use_deform_preserve_volume,
+                    'show_viewport': modifier.show_viewport,
+                    'show_render': modifier.show_render,
+                }
+                bpy.ops.object.select_all(action='DESELECT')
+                utils.set_active(obj)
+                bpy.ops.object.modifier_apply(modifier=modifier.name)
+                bound_meshes.append((obj, settings))
+                break
+
+        bpy.ops.object.select_all(action='DESELECT')
+        return bound_meshes
+
+    def rebind_meshes(self, armature_target, bound_meshes):
+        for obj, settings in bound_meshes:
+            modifier = obj.modifiers.new(name='Armature', type='ARMATURE')
+            modifier.object = armature_target
+            modifier.use_vertex_groups = settings['use_vertex_groups']
+            modifier.use_bone_envelopes = settings['use_bone_envelopes']
+            modifier.use_deform_preserve_volume = settings['use_deform_preserve_volume']
+            modifier.show_viewport = settings['show_viewport']
+            modifier.show_render = settings['show_render']
+
+            index = settings['index']
+            if index < len(obj.modifiers) - 1:
+                obj.modifiers.move(len(obj.modifiers) - 1, index)
 
     def copy_rest_pose(self, context, armature_source):
         # make sure auto keyframe is disabled, leads to issues

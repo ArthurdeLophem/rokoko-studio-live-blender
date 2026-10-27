@@ -70,6 +70,9 @@ class RetargetingPanel(ToolPanel, bpy.types.Panel):
         row.prop(context.scene, 'rsl_retargeting_auto_scaling')
 
         row = layout.row(align=True)
+        row.prop(context.scene, 'rsl_retargeting_copy_rest_pose')
+
+        row = layout.row(align=True)
         row.label(text='Use Pose:')
         row.prop(context.scene, 'rsl_retargeting_use_pose', expand=True)
 

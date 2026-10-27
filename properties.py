@@ -91,6 +91,14 @@ def register():
                     '\nBoth armatures have to be in T-pose for this to work correctly',
         default=True
     )
+    Scene.rsl_retargeting_copy_rest_pose = BoolProperty(
+        name='Copy Rest Pose',
+        description='Copy the rest pose (location, rotation and scale) from the source armature'
+                    '\nto the target armature before retargeting the animation.'
+                    '\nThis is applied to all mapped bones and then set as the target rest pose'
+                    '\nAlways applied when the target armature has no animation',
+        default=False
+    )
     Scene.rsl_retargeting_use_pose = EnumProperty(
         name="Use Pose",
         description='Select which pose of the source and target armature to use to retarget the animation.'
