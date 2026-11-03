@@ -10,6 +10,7 @@ if "bpy" not in locals():
     from . import icon_manager
     from . import recorder
     from . import retargeting
+    from . import animation_cleanup
     from . import detection_manager
     from . import detection_manager_v2
     from . import custom_schemes_manager
@@ -28,6 +29,7 @@ else:
     importlib.reload(icon_manager)
     importlib.reload(recorder)
     importlib.reload(retargeting)
+    importlib.reload(animation_cleanup)
     importlib.reload(detection_manager)
     importlib.reload(detection_manager_v2)
     importlib.reload(custom_schemes_manager)

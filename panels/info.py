@@ -10,6 +10,7 @@ from ..core import login_manager as lm
 
 class InfoPanel(ToolPanel, bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_rsl_info_v2'
+    bl_options = {'DEFAULT_CLOSED'}
     bl_label = 'Info'
 
     def draw(self, context):

@@ -7,6 +7,7 @@ if "bpy" not in locals():
     from . import updater
     from . import info
     from . import login
+    from . import clean
     from . import export
 else:
     import importlib
@@ -18,4 +19,5 @@ else:
     importlib.reload(updater)
     importlib.reload(info)
     importlib.reload(login)
+    importlib.reload(clean)
     importlib.reload(export)

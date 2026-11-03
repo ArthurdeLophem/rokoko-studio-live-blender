@@ -9,6 +9,7 @@ from ..operators import detector
 class ObjectsPanel(bpy.types.Panel):
     bl_label = "Rokoko Studio Live Setup"
     bl_idname = "OBJECT_PT_rsl_objects_v2"
+    bl_options = {'DEFAULT_CLOSED'}
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "object"

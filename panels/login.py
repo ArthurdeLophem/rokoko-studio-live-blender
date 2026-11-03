@@ -8,6 +8,7 @@ from ..core import login_manager as lm
 
 class LoginPanel(ToolPanel, bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_rsl_login_v2'
+    bl_options = {'DEFAULT_CLOSED'}
     bl_label = 'Rokoko ID'
 
     def draw(self, context):

@@ -100,7 +100,7 @@ def register():
         default=True
     )
     Scene.rsl_retargeting_clean_animation = BoolProperty(
-        name='Clean Animation',
+        name='Cleanup animation',
         description='Clean the retargeted animation: removes unused channels, reduces constant channels to their first keyframe'
                     '\nand removes redundant keyframes',
         default=True
