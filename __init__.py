@@ -64,6 +64,7 @@ classes_logged_in = [  # These panels will only be loaded when the user is logge
     panels.objects.ObjectsPanel,
     panels.command_api.CommandPanel,
     panels.retargeting.RetargetingPanel,
+    panels.export.ExportPanel,
     panels.updater.UpdaterPanel,
     panels.info.InfoPanel,
 ]
@@ -102,6 +103,9 @@ classes_always_enable = [  # These non-panels will always be loaded, all non-pan
     operators.retargeting.AddBoneListItem,
     operators.retargeting.ClearBoneList,
     operators.retargeting.RetargetAnimation,
+    operators.export.ExportRig,
+    operators.dnd.IMPORT_OT_fbx_legacy,
+    operators.dnd.IO_FH_fbx_legacy,
     panels.retargeting.RSL_UL_BoneList,
     panels.retargeting.BoneListItem,
     operators.info.LicenseButton,
@@ -143,6 +147,9 @@ def register():
 
     # Register logged out classes
     register_classes(classes_logged_out + classes_always_enable)
+
+    # Make the legacy FBX templates available in the drop importer
+    operators.dnd.sync_legacy_presets()
 
     # Register all custom properties
     properties.register()

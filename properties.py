@@ -99,6 +99,31 @@ def register():
                     '\nAlways applied when the target armature has no animation',
         default=False
     )
+    Scene.rsl_retargeting_clean_animation = BoolProperty(
+        name='Clean Animation',
+        description='Clean the retargeted animation: removes unused channels, reduces constant channels to their first keyframe'
+                    '\nand removes redundant keyframes',
+        default=True
+    )
+    Scene.rsl_retargeting_clean_tolerance = FloatProperty(
+        name='Tolerance',
+        description='How far a keyframe may deviate from the curve before it is kept. Higher values remove more keyframes',
+        default=0.001,
+        min=0.0,
+        precision=4
+    )
+    Scene.rsl_retargeting_smooth_iterations = IntProperty(
+        name='Smooth Passes',
+        description='Number of smoothing passes applied to each channel. 0 disables smoothing',
+        default=0,
+        min=0,
+        max=20
+    )
+    Scene.rsl_retargeting_smooth_interpolation = BoolProperty(
+        name='Smooth Interpolation',
+        description='Use Bezier interpolation with auto-clamped handles instead of linear, for softer motion',
+        default=False
+    )
     Scene.rsl_retargeting_use_pose = EnumProperty(
         name="Use Pose",
         description='Select which pose of the source and target armature to use to retarget the animation.'
@@ -114,6 +139,18 @@ def register():
     Scene.rsl_retargeting_bone_list_index = IntProperty(
         name="Index for the retargeting bone list",
         default=0
+    )
+
+    # Export
+    Scene.rsl_export_object_types = EnumProperty(
+        name='Export Types',
+        description='Select which object types are included in the export',
+        items=[
+            ("ARMATURE", "Armature", "Export the rig"),
+            ("MESH", "Mesh", "Export the meshes in the export collection")
+        ],
+        options={'ENUM_FLAG'},
+        default={'ARMATURE'}
     )
 
     # Objects
