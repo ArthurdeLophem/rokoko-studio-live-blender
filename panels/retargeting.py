@@ -73,6 +73,14 @@ class RetargetingPanel(ToolPanel, bpy.types.Panel):
         row.prop(context.scene, 'rsl_retargeting_copy_rest_pose')
 
         row = layout.row(align=True)
+        row.prop(context.scene, 'rsl_retargeting_clean_animation')
+        if context.scene.rsl_retargeting_clean_animation:
+            col = layout.column(align=True)
+            col.prop(context.scene, 'rsl_retargeting_clean_tolerance')
+            col.prop(context.scene, 'rsl_retargeting_smooth_iterations')
+            col.prop(context.scene, 'rsl_retargeting_smooth_interpolation')
+
+        row = layout.row(align=True)
         row.label(text='Use Pose:')
         row.prop(context.scene, 'rsl_retargeting_use_pose', expand=True)
 

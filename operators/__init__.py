@@ -8,6 +8,8 @@ if "bpy" not in locals():
     from . import info
     from . import retargeting
     from . import login
+    from . import export
+    from . import dnd
 else:
     import importlib
 
@@ -19,3 +21,5 @@ else:
     importlib.reload(info)
     importlib.reload(retargeting)
     importlib.reload(login)
+    importlib.reload(export)
+    importlib.reload(dnd)
