@@ -77,6 +77,7 @@ class RetargetingPanel(ToolPanel, bpy.types.Panel):
         if context.scene.rsl_retargeting_clean_animation:
             col = layout.column(align=True)
             col.prop(context.scene, 'rsl_retargeting_clean_tolerance')
+            col.prop(context.scene, 'rsl_retargeting_decimate_percent')
             col.prop(context.scene, 'rsl_retargeting_smooth_iterations')
             col.prop(context.scene, 'rsl_retargeting_smooth_interpolation')
 

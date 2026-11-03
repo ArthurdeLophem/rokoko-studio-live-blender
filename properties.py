@@ -89,7 +89,7 @@ def register():
         name='Auto Scale',
         description='This will scale the source armature to fit the height of the target armature.'
                     '\nBoth armatures have to be in T-pose for this to work correctly',
-        default=True
+        default=False
     )
     Scene.rsl_retargeting_copy_rest_pose = BoolProperty(
         name='Copy Rest Pose',
@@ -97,7 +97,7 @@ def register():
                     '\nto the target armature before retargeting the animation.'
                     '\nThis is applied to all mapped bones and then set as the target rest pose'
                     '\nAlways applied when the target armature has no animation',
-        default=False
+        default=True
     )
     Scene.rsl_retargeting_clean_animation = BoolProperty(
         name='Clean Animation',
@@ -112,6 +112,15 @@ def register():
         min=0.0,
         precision=4
     )
+    Scene.rsl_retargeting_decimate_percent = FloatProperty(
+        name='Decimate Allowed Change',
+        description='Largest change allowed when removing keyframes, as a percentage of each channel\'s value range.'
+                    '\nKeyframes are only removed if the curve stays within this change. 0 uses only the tolerance',
+        default=0.6,
+        min=0.0,
+        max=100.0,
+        precision=2
+    )
     Scene.rsl_retargeting_smooth_iterations = IntProperty(
         name='Smooth Passes',
         description='Number of smoothing passes applied to each channel. 0 disables smoothing',
@@ -122,7 +131,7 @@ def register():
     Scene.rsl_retargeting_smooth_interpolation = BoolProperty(
         name='Smooth Interpolation',
         description='Use Bezier interpolation with auto-clamped handles instead of linear, for softer motion',
-        default=False
+        default=True
     )
     Scene.rsl_retargeting_use_pose = EnumProperty(
         name="Use Pose",
@@ -131,7 +140,8 @@ def register():
         items=[
             ("REST", "Rest", "Select this to use the rest pose during retargeting."),
             ("CURRENT", "Current", "Select this to use the current pose during retargeting.")
-        ]
+        ],
+        default="CURRENT"
     )
     Scene.rsl_retargeting_bone_list = CollectionProperty(
         type=retargeting_ui.BoneListItem

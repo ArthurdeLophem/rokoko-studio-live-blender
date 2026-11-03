@@ -527,11 +527,15 @@ class RetargetAnimation(bpy.types.Operator):
 
             # Constant channels only need their first keyframe
             if all(abs(value - values[0]) <= tolerance for value in values):
-                for kp in list(keyframes)[1:]:
-                    keyframes.remove(kp)
+                while len(keyframes) > 1:
+                    keyframes.remove(keyframes[len(keyframes) - 1], fast=True)
+                fcurve.update()
                 continue
 
-            self.simplify_fcurve(fcurve, tolerance)
+            # Allowed change: the absolute tolerance or a percentage of the channel's value range, whichever is larger
+            value_range = max(values) - min(values)
+            allowed = max(tolerance, value_range * scene.rsl_retargeting_decimate_percent / 100)
+            self.simplify_fcurve(fcurve, allowed)
 
             if scene.rsl_retargeting_smooth_iterations:
                 self.smooth_fcurve(fcurve, scene.rsl_retargeting_smooth_iterations)
@@ -574,9 +578,11 @@ class RetargetAnimation(bpy.types.Operator):
             else:
                 anchor = i
 
-        for kp, should_remove in zip(keyframes, remove):
-            if should_remove:
-                fcurve.keyframe_points.remove(kp)
+        # Remove from the end so the indices of the remaining keys stay valid
+        for i in reversed(range(count)):
+            if remove[i]:
+                fcurve.keyframe_points.remove(fcurve.keyframe_points[i], fast=True)
+        fcurve.update()
 
     def smooth_fcurve(self, fcurve, passes):
         keyframes = list(fcurve.keyframe_points)
